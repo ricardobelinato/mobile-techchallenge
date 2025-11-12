@@ -12,27 +12,27 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { auth } from '../src/api/auth';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
-  const handleLogin = () => {
-    if (email === '' || senha === '') {
+  const handleLogin = async () => {
+    if (!email || !senha) {
       Alert.alert('Erro', 'Por favor, preencha e-mail e senha.');
-    } else {
-      // Navega para o grupo de abas e impede o usuário de "voltar"
-      router.navigate('/home'); // alterei para navegar para a home
+      return;
+    } 
+    
+    try {
+      const data = await auth(email, senha);
+      router.navigate('/home');
+    } catch {
+      Alert.alert('Erro', 'Falha ao autenticar.');
     }
   };
-
   
-  const handleCadastro = () => {
-    Alert.alert('Cadastro', 'Redirecionando para a tela de cadastro...');
-    // router.push('/register'); // Exemplo de como seria
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
