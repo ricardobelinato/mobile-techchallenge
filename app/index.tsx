@@ -23,7 +23,7 @@ export default function LoginScreen() {
       Alert.alert('Erro', 'Por favor, preencha e-mail e senha.');
     } else {
       // Navega para o grupo de abas e impede o usuário de "voltar"
-      router.replace('/(tabs)');
+      router.navigate('/home'); // alterei para navegar para a home
     }
   };
 
