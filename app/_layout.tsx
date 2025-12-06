@@ -15,6 +15,7 @@ export default function RootLayout() {
       <Stack>
         {/* Esta é a sua tela de Login (app/index.tsx) */}
         <Stack.Screen name="index" options={{ headerShown: false }} /> 
+        <Stack.Screen name="home" options={{ headerShown: false }} />
         
         {/* Este é o seu grupo de abas (app/(tabs)/...) */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

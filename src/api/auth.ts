@@ -1,15 +1,6 @@
-import axios from 'axios';
+import api from './api';
 
-export async function auth(email: string, password: string) {
-    try {
-        const response = await axios.post('http://localhost:3000/auth/login', {
-            email,
-            senha: password,
-        });
-        
-        return response.data;
-    } catch(err) {
-        console.error(err);
-        throw err;
-    }
+export async function auth(email: string, senha: string) {
+    const response = await api.post("/auth/login", { email, senha });
+    return response.data;
 }

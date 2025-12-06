@@ -1,11 +1,15 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import React, { useState } from 'react';
 import {
   Alert,
+  Dimensions,
   Image,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -14,66 +18,162 @@ import {
 } from 'react-native';
 import { auth } from '../src/api/auth';
 
+const { height } = Dimensions.get('window');
+
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !senha) {
       Alert.alert('Erro', 'Por favor, preencha e-mail e senha.');
       return;
-    } 
-    
+    }
+
+    setLoading(true);
+
     try {
-      const data = await auth(email, senha);
-      router.navigate('/home');
+      const response = await auth(email, senha);
+
+      try {
+        await Promise.all([
+          SecureStore.setItemAsync('token', response.token),
+          SecureStore.setItemAsync('user', JSON.stringify(response))
+        ]);
+        console.log("Storage salvo!");
+      } catch (err) {
+        console.log("Erro ao salvar no SecureStore:", err);
+      }
+
+      router.replace('/home');
     } catch {
-      Alert.alert('Erro', 'Falha ao autenticar.');
+      Alert.alert('Erro', 'E-mail ou senha incorretos.');
+    } finally {
+      setLoading(false);
     }
   };
-  
+
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#667eea" />
+      
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={styles.content}>
-          {/* Espaço para a Logo */}
-          <Image
-            source={require('../assets/images/icon-school.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
+        {/* Header com gradiente */}
+        <LinearGradient
+          colors={['#667eea', '#764ba2']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.header}
+        >
+          <View style={styles.logoContainer}>
+            <View style={styles.iconWrapper}>
+              <Image
+                source={require('../assets/images/icon-school.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.brandName}>SchoolOn</Text>
+            <Text style={styles.brandSubtitle}>EDUCATION PLATFORM</Text>
+          </View>
+        </LinearGradient>
 
-          <Text style={styles.title}>Bem-vindo!</Text>
+        {/* Formulário */}
+        <View style={styles.formContainer}>
+          <View style={styles.formContent}>
+            <Text style={styles.welcomeTitle}>Bem-vindo de volta!</Text>
+            <Text style={styles.welcomeSubtitle}>
+              Faça login para acessar sua conta
+            </Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="E-mail"
-            placeholderTextColor="#999"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>E-mail</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="seu@email.com"
+                placeholderTextColor="#999"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Senha"
-            placeholderTextColor="#999"
-            value={senha}
-            onChangeText={setSenha}
-            secureTextEntry={true}
-          />
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Senha</Text>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="••••••••"
+                  placeholderTextColor="#999"
+                  value={senha}
+                  onChangeText={setSenha}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
 
-          {/* Botão de Login customizado */}
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Entrar</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.forgotPassword}
+              onPress={() => Alert.alert('Info', 'Funcionalidade em desenvolvimento')}
+            >
+              <Text style={styles.forgotPasswordText}>Esqueceu sua senha?</Text>
+            </TouchableOpacity>
 
+            {/* Botão de Login com gradiente */}
+            <TouchableOpacity
+              style={styles.loginButtonContainer}
+              onPress={handleLogin}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['#667eea', '#764ba2']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.loginButton}
+              >
+                <Text style={styles.loginButtonText}>
+                  {loading ? 'Entrando...' : 'Entrar'}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
 
+            {/* Stats */}
+            <View style={styles.statsContainer}>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>500+</Text>
+                <Text style={styles.statLabel}>Professores</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>10k+</Text>
+                <Text style={styles.statLabel}>Alunos</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>95%</Text>
+                <Text style={styles.statLabel}>Satisfação</Text>
+              </View>
+            </View>
+          </View>
+
+          <Text style={styles.footer}>
+            © 2025 SchoolOn. Todos os direitos reservados.
+          </Text>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -83,62 +183,182 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#f8f9fa',
   },
   keyboardAvoidingView: {
     flex: 1,
   },
-  content: {
-    flex: 1,
+  header: {
+    height: height * 0.35,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  logoContainer: {
+    alignItems: 'center',
+  },
+  iconWrapper: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    marginBottom: 15,
   },
   logo: {
-    width: 150,
-    height: 150,
-    marginBottom: 30,
+    width: 80,
+    height: 80,
   },
-  title: {
+  brandName: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: '#fff',
+    letterSpacing: -1,
+    marginBottom: 5,
+  },
+  brandSubtitle: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.8)',
+    letterSpacing: 1.5,
+    fontWeight: '600',
+  },
+  formContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    marginTop: -30,
+    paddingTop: 30,
+    paddingHorizontal: 24,
+  },
+  formContent: {
+    flex: 1,
+  },
+  welcomeTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#000000ff',
-    marginBottom: 30,
+    color: '#2c3e50',
+    marginBottom: 8,
+  },
+  welcomeSubtitle: {
+    fontSize: 15,
+    color: '#5a6c7d',
+    marginBottom: 32,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2c3e50',
+    marginBottom: 8,
   },
   input: {
     width: '100%',
-    height: 50,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    paddingHorizontal: 15,
+    height: 52,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 16,
     fontSize: 16,
     color: '#333',
-    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    height: 52,
+  },
+  passwordInput: {
+    flex: 1,
+    height: '100%',
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#333',
+  },
+  eyeButton: {
+    padding: 12,
+  },
+  eyeIcon: {
+    fontSize: 20,
+  },
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginBottom: 24,
+  },
+  forgotPasswordText: {
+    color: '#667eea',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  loginButtonContainer: {
+    width: '100%',
+    marginBottom: 32,
+    borderRadius: 12,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowColor: '#667eea',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
       },
       android: {
-        elevation: 3,
+        elevation: 6,
       },
     }),
   },
   loginButton: {
     width: '100%',
-    height: 50,
-    backgroundColor: '#0059ffff',
-    borderRadius: 10,
+    height: 52,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
-    marginTop: 10,
   },
   loginButtonText: {
-    color: '#ffffffff',
-    fontSize: 18,
+    color: '#fff',
+    fontSize: 17,
     fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#667eea',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#5a6c7d',
+  },
+  statDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#e0e0e0',
+  },
+  footer: {
+    textAlign: 'center',
+    color: '#5a6c7d',
+    fontSize: 12,
+    paddingBottom: 16,
   },
 });
