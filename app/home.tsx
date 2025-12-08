@@ -1,114 +1,317 @@
-import React from 'react';
-import { FlatList, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from "expo-router";
+import React, { useState } from 'react';
+import {
+  FlatList,
+  Image,
+  Modal,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
+} from 'react-native';
 
-// Criei apenas para mostrar algumas aulas, depois alteramos para consumir da api
-const aulas = [
-  { id: '1', titulo: 'Introdução à Programação', professor: 'Prof. fulano', descrição: 'Descrição da aula de Introdução à programação'},
-  { id: '2', titulo: 'Front-end', professor: 'Prof. fulana', descrição: 'Descrição da aula de Front-end'},
-  { id: '3', titulo: 'Estruturas de Dados', professor: 'Prof. fulano', descrição: 'Descrição da aula de Estruturas de Dados'},
-  { id: '4', titulo: 'Banco de Dados', professor: 'Prof. fulana', descrição: 'Descrição da aula de Banco de Dados'},
-  { id: '5', titulo: 'Back-end', professor: 'Prof. fulano', descrição: 'Descrição da aula de Back-end'},
+const userLevel = 1;
+
+const posts = [
+  {
+    id: 1,
+    titulo: "Introdução à Programação",
+    conteudo: "Aprenda os conceitos básicos de lógica, algoritmos e pensamento computacional. Aqui explicamos tudo do zero para iniciantes.",
+    imagem: "https://picsum.photos/1000/600?random=1",
+    materia: "Tecnologia"
+  },
+  {
+    id: 2,
+    titulo: "Fundamentos de Front-end",
+    conteudo: "CSS, HTML e JavaScript modernos para interfaces responsivas. Inclui boas práticas e dicas profissionais.",
+    imagem: "https://picsum.photos/1000/600?random=2",
+    materia: "Desenvolvimento Web"
+  },
+  {
+    id: 3,
+    titulo: "Estruturas de Dados",
+    conteudo: "Entenda listas, pilhas, filas, árvores e grafos de forma prática!",
+    imagem: "https://picsum.photos/1000/600?random=3",
+    materia: "Algoritmos"
+  }
 ];
 
 export default function HomeScreen() {
-  const renderizaAula = ({ item }) => (
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [postSelecionado, setPostSelecionado] = useState(null);
+  const [busca, setBusca] = useState("");
+
+  const abrirModal = (post) => {
+    setPostSelecionado(post);
+    setModalVisible(true);
+  };
+
+  const fecharModal = () => {
+    setModalVisible(false);
+    setPostSelecionado(null);
+  };
+
+  const postsFiltrados = posts.filter((item) =>
+    item.titulo.toLowerCase().includes(busca.toLowerCase()) ||
+    item.materia.toLowerCase().includes(busca.toLowerCase()) ||
+    item.conteudo.toLowerCase().includes(busca.toLowerCase())
+  );
+
+  const renderizaPost = ({ item }) => (
     <View style={styles.card}>
-      <View>
-        <Text style={styles.aulaTitulo}>{item.titulo}</Text>
-        <Text style={styles.descricao}>{item.descrição}</Text>
-        <Text style={styles.aulaInfo}>{item.professor}</Text>
-      </View>
-      <View>
+      
+      {item.imagem && (
+        <Image source={{ uri: item.imagem }} style={styles.cardImage} />
+      )}
+
+      <View style={{ flex: 1 }}>
+        <Text style={styles.postTitulo}>{item.titulo}</Text>
+
+        {item.materia && (
+          <Text style={styles.materia}>{item.materia}</Text>
+        )}
+
+        <Text style={styles.descricao}>
+          {item.conteudo.length > 80 
+            ? item.conteudo.substring(0, 80) + "..." 
+            : item.conteudo}
+        </Text>
+
         <Pressable
-          style={styles.botao}
-          onPress={() => console.log(`Acessando aula: ${item.titulo}`)}
+          style={({ pressed }) => [styles.botao, pressed && { opacity: 0.7 }]}
+          onPress={() => abrirModal(item)}
         >
-          <Text style={styles.textoBotao}>Ver aula</Text>
+          <Text style={styles.textoBotao}>Ler post</Text>
         </Pressable>
+
+        {/* Só aparece para prof */}
+        {userLevel === 1 && (
+          <Pressable
+            style={({ pressed }) => [styles.botaoEditar, pressed && { opacity: 0.7 }]}
+            onPress={() => router.push(`/posts/update?id=${item.id}`)}
+          >
+            <Text style={styles.textoBotaoEditar}>Editar</Text>
+          </Pressable>
+        )}
       </View>
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          <Text style={{ color: '#024886' }}>School</Text>
-          <Text style={{ color: '#279951' }}>On</Text>
-        </Text>
-        <Text style={styles.subtitle}>Aulas Disponíveis</Text>
+
+      {/* BARRA DE PESQUISA */}
+      <View style={styles.searchBox}>
+        <Ionicons name="search" size={22} color="#666" style={{ marginRight: 8 }} />
+        <TextInput
+          placeholder="Buscar post por título ou matéria..."
+          placeholderTextColor="#777"
+          style={styles.searchInput}
+          value={busca}
+          onChangeText={setBusca}
+        />
       </View>
 
+      {/* LISTA */}
       <FlatList
-        data={aulas}
-        renderItem={renderizaAula}
-        keyExtractor={(item) => item.id}
+        data={postsFiltrados}
+        renderItem={renderizaPost}
+        keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <Text style={styles.nenhumResultado}>Nenhum post encontrado...</Text>
+        }
       />
+
+      {/* MODAL */}
+      <Modal visible={modalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {postSelecionado?.imagem && (
+                <Image source={{ uri: postSelecionado.imagem }} style={styles.modalImage} />
+              )}
+
+              <Text style={styles.modalTitulo}>{postSelecionado?.titulo}</Text>
+
+              {postSelecionado?.materia && (
+                <Text style={styles.modalMateria}>{postSelecionado?.materia}</Text>
+              )}
+
+              <Text style={styles.modalConteudo}>{postSelecionado?.conteudo}</Text>
+
+              {userLevel === 1 && (
+                <Pressable
+                  style={styles.botaoEditarModal}
+                  onPress={() => {
+                    fecharModal();
+                    router.push(`/posts/update?id=${postSelecionado.id}`);
+                  }}
+                >
+                  <Text style={styles.textoEditarModal}>Editar post</Text>
+                </Pressable>
+              )}
+            </ScrollView>
+
+            <Pressable style={styles.botaoFechar} onPress={fecharModal}>
+              <Text style={styles.botaoFecharTexto}>Fechar</Text>
+            </Pressable>
+
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  header: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1E90FF',
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#333',
-    marginTop: 5,
-  },
-  list: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-  },
-  card: {
-    display: 'flex',
+  container: { flex: 1, backgroundColor: '#f3f5f7' },
+
+  searchBox: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: '#FFF',
+    margin: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 14,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 5,
+    elevation: 2
+  },
+
+  searchInput: { flex: 1, fontSize: 16, color: '#333' },
+
+  list: { paddingHorizontal: 18, paddingBottom: 30 },
+
+  nenhumResultado: {
+    textAlign: 'center',
+    color: '#666',
+    marginTop: 20,
+    fontSize: 15
+  },
+
+  card: {
     backgroundColor: '#FFF',
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
+    borderRadius: 16,
+    marginBottom: 20,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
     elevation: 3,
   },
-  aulaTitulo: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 6,
+
+  cardImage: { width: '100%', height: 170, borderRadius: 12, marginBottom: 12 },
+
+  postTitulo: { fontSize: 19, fontWeight: '700', color: '#1d1d1d' },
+
+  materia: {
+    backgroundColor: '#02488622',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    fontSize: 12,
+    color: '#024886',
+    marginTop: 6,
+    marginBottom: 8
   },
-  descricao: {
-    color: '#3b3b3bff',
-    paddingBottom: 15
-  },
-  aulaInfo: {
-    fontSize: 14,
-    color: '#555',
-    fontStyle: 'italic',
-  },
+
+  descricao: { color: '#555', fontSize: 14, marginBottom: 12 },
+
   botao: {
     backgroundColor: '#024886',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,  
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+    marginBottom: 8
   },
-  textoBotao: {
-    color: '#fff'
+
+  textoBotao: { color: '#fff', fontSize: 14, fontWeight: '600' },
+
+  botaoEditar: {
+    backgroundColor: '#F39C12',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    alignSelf: 'flex-start'
+  },
+
+  textoBotaoEditar: { color: '#fff', fontWeight: '700' },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    padding: 20
+  },
+
+  modalBox: {
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+    padding: 18,
+    maxHeight: '85%',
+  },
+
+  modalImage: { width: '100%', height: 220, borderRadius: 14, marginBottom: 15 },
+
+  modalTitulo: { fontSize: 23, fontWeight: '700', marginBottom: 10, color: '#024886' },
+
+  modalMateria: {
+    backgroundColor: '#02488622',
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    alignSelf: 'flex-start',
+    borderRadius: 8,
+    fontSize: 13,
+    marginBottom: 14,
+    color: '#024886'
+  },
+
+  modalConteudo: {
+    fontSize: 16,
+    color: '#333',
+    lineHeight: 24,
+    marginBottom: 20
+  },
+
+  botaoEditarModal: {
+    backgroundColor: '#F39C12',
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 18
+  },
+
+  textoEditarModal: {
+    textAlign: 'center',
+    color: '#FFF',
+    fontWeight: '700',
+    fontSize: 16
+  },
+
+  botaoFechar: {
+    backgroundColor: '#279951',
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginTop: 10
+  },
+
+  botaoFecharTexto: {
+    color: '#FFF',
+    fontSize: 16,
+    textAlign: 'center',
+    fontWeight: '600'
   }
 });
