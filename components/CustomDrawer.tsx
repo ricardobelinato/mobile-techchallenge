@@ -61,6 +61,11 @@ export default function CustomDrawer({ visible, onClose }: Props) {
           <Text style={styles.itemText}>Meu Perfil</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity style={styles.item} onPress={() => go("/createProf")}>
+          <Ionicons name="add-outline" size={23} color="#333" />
+          <Text style={styles.itemText}>Criar Perfil Administrativo</Text>
+        </TouchableOpacity>
+
         <View style={styles.separator} />
 
         <TouchableOpacity style={styles.logout} onPress={() => go("/")}>

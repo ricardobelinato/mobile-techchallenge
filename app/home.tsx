@@ -90,10 +90,14 @@ export default function HomeScreen() {
         </Pressable>
 
         {/* Só aparece para prof */}
+        {/* alterei para esse formato de objeto com pathname + params para funcionar a troca de tela que antes não estava funcionando */}
         {userLevel === 1 && (
           <Pressable
             style={({ pressed }) => [styles.botaoEditar, pressed && { opacity: 0.7 }]}
-            onPress={() => router.push(`/posts/update?id=${item.id}`)}
+            onPress={() => router.push({
+              pathname: "/post/update",
+              params: { id: item.id }
+            })}
           >
             <Text style={styles.textoBotaoEditar}>Editar</Text>
           </Pressable>

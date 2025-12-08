@@ -7,7 +7,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 
 export default function PostUpdate() {
@@ -94,6 +94,10 @@ export default function PostUpdate() {
                 <TouchableOpacity style={styles.button} onPress={salvar}>
                     <Text style={styles.buttonText}>Salvar Alterações</Text>
                 </TouchableOpacity>
+                
+                <TouchableOpacity  style={styles.goBackButton} onPress={() => router.navigate("/home")}>
+                    <Text style={styles.goBackButtonText}>Voltar</Text>
+                </TouchableOpacity >
             </View>
         </ScrollView>
     );
@@ -156,10 +160,23 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginTop: 10,
     },
+    goBackButton: {
+        borderWidth: 2,
+        borderColor: "#1E88E5",
+        paddingVertical: 14,
+        borderRadius: 10,
+        marginTop: 10,
+    },
     buttonText: {
         textAlign: "center",
         fontSize: 18,
         fontWeight: "700",
         color: "#FFF",
+    },
+    goBackButtonText: {
+        textAlign: "center",
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#1E88E5",
     },
 });
