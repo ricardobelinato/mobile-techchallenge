@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from "expo-router";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -13,38 +13,33 @@ import {
   TextInput,
   View
 } from 'react-native';
+import { getPosts } from '../src/api/getPosts';
 
 const userLevel = 1;
 
-const posts = [
-  {
-    id: 1,
-    titulo: "Introdução à Programação",
-    conteudo: "Aprenda os conceitos básicos de lógica, algoritmos e pensamento computacional. Aqui explicamos tudo do zero para iniciantes.",
-    imagem: "https://picsum.photos/1000/600?random=1",
-    materia: "Tecnologia"
-  },
-  {
-    id: 2,
-    titulo: "Fundamentos de Front-end",
-    conteudo: "CSS, HTML e JavaScript modernos para interfaces responsivas. Inclui boas práticas e dicas profissionais.",
-    imagem: "https://picsum.photos/1000/600?random=2",
-    materia: "Desenvolvimento Web"
-  },
-  {
-    id: 3,
-    titulo: "Estruturas de Dados",
-    conteudo: "Entenda listas, pilhas, filas, árvores e grafos de forma prática!",
-    imagem: "https://picsum.photos/1000/600?random=3",
-    materia: "Algoritmos"
+async function fetchPosts(query) {
+  try {
+    setLoading(true);
+    const data = await getPosts(query ? { q: query } : {});
+    setPosts(data);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
   }
-];
+}
 
 export default function HomeScreen() {
-
+  
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [postSelecionado, setPostSelecionado] = useState(null);
   const [busca, setBusca] = useState("");
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   const abrirModal = (post) => {
     setPostSelecionado(post);
@@ -55,12 +50,6 @@ export default function HomeScreen() {
     setModalVisible(false);
     setPostSelecionado(null);
   };
-
-  const postsFiltrados = posts.filter((item) =>
-    item.titulo.toLowerCase().includes(busca.toLowerCase()) ||
-    item.materia.toLowerCase().includes(busca.toLowerCase()) ||
-    item.conteudo.toLowerCase().includes(busca.toLowerCase())
-  );
 
   const renderizaPost = ({ item }) => (
     <View style={styles.card}>
@@ -106,6 +95,18 @@ export default function HomeScreen() {
     </View>
   );
 
+  async function fetchPosts(query) {
+    try {
+      setLoading(true);
+      const data = await getPosts(query ? { q: query } : {});
+      setPosts(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
 
@@ -123,7 +124,7 @@ export default function HomeScreen() {
 
       {/* LISTA */}
       <FlatList
-        data={postsFiltrados}
+        data={posts}
         renderItem={renderizaPost}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.list}
