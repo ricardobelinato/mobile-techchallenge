@@ -4,7 +4,7 @@
     "slug": "mobile-techchallenge",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/icon-school.png",
     "scheme": "mobiletechchallenge",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -23,8 +23,9 @@
       "package": "com.anonymous.mobiletechchallenge"
     },
     "web": {
+      "name": "SchoolOn",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/icon-school.png"
     },
     "plugins": [
       "expo-router",

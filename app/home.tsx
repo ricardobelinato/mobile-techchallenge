@@ -17,18 +17,6 @@ import { getPosts } from '../src/api/getPosts';
 
 const userLevel = 1;
 
-async function fetchPosts(query) {
-  try {
-    setLoading(true);
-    const data = await getPosts(query ? { q: query } : {});
-    setPosts(data);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-}
-
 export default function HomeScreen() {
   
   const [posts, setPosts] = useState([]);
@@ -54,9 +42,13 @@ export default function HomeScreen() {
   const renderizaPost = ({ item }) => (
     <View style={styles.card}>
       
-      {item.imagem && (
+      {/* {item.imagem && (
         <Image source={{ uri: item.imagem }} style={styles.cardImage} />
-      )}
+      )} */}
+      <Image
+        source={{ uri: getPostImage(item) }}
+        style={styles.cardImage}
+      />
 
       <View style={{ flex: 1 }}>
         <Text style={styles.postTitulo}>{item.titulo}</Text>
@@ -140,8 +132,14 @@ export default function HomeScreen() {
           <View style={styles.modalBox}>
             
             <ScrollView showsVerticalScrollIndicator={false}>
-              {postSelecionado?.imagem && (
+              {/* {postSelecionado?.imagem && (
                 <Image source={{ uri: postSelecionado.imagem }} style={styles.modalImage} />
+              )} */}
+              {postSelecionado && (
+                <Image
+                  source={{ uri: getPostImage(postSelecionado) }}
+                  style={styles.modalImage}
+                />
               )}
 
               <Text style={styles.modalTitulo}>{postSelecionado?.titulo}</Text>
@@ -175,6 +173,12 @@ export default function HomeScreen() {
 
     </SafeAreaView>
   );
+}
+
+function getPostImage(post) {
+  if (post.imagem) return post.imagem;
+
+  return `https://picsum.photos/seed/post-${post.id ?? Math.random()}/600/400`;
 }
 
 const styles = StyleSheet.create({
