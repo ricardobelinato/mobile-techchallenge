@@ -44,6 +44,11 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "nodeEnv": "${NODE_ENV}",
+      "apiUrl": "${API_URL}",
+      "enableMockLogin": "${ENABLE_MOCK_LOGIN}"
     }
   }
 }
