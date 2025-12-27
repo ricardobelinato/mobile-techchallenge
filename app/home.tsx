@@ -14,16 +14,28 @@ import {
   View
 } from 'react-native';
 import { getPosts } from '../src/api/getPosts';
+import { getAuth } from '../src/storage/authStorage';
 
 const userLevel = 1;
 
 export default function HomeScreen() {
-  
+  const [auth, setAuth] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [postSelecionado, setPostSelecionado] = useState(null);
   const [busca, setBusca] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      const data = await getAuth();
+      if (mounted) setAuth(data);
+    })();
+
+    return () => { mounted = false };
+  }, []);
 
   useEffect(() => {
     fetchPosts();
@@ -72,7 +84,7 @@ export default function HomeScreen() {
 
         {/* Só aparece para prof */}
         {/* alterei para esse formato de objeto com pathname + params para funcionar a troca de tela que antes não estava funcionando */}
-        {userLevel === 1 && (
+        {auth?.user?.admin && (
           <Pressable
             style={({ pressed }) => [styles.botaoEditar, pressed && { opacity: 0.7 }]}
             onPress={() => router.push({

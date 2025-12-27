@@ -51,6 +51,7 @@ export default function LoginScreen() {
       router.replace('/home');
     } catch {
       Alert.alert('Erro', 'E-mail ou senha incorretos.');
+      window.alert('E-mail ou senha incorretos.')
     } finally {
       setLoading(false);
     }
