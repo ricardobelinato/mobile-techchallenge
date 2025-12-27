@@ -57,10 +57,6 @@ export default function PostsScreen() {
           </View>
         </View>
 
-        {/* Botão para criar novo post */}
-        <Pressable style={styles.novoPostButton}>
-          <Text style={styles.novoPostButtonText}>+ Novo Post</Text>
-        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
