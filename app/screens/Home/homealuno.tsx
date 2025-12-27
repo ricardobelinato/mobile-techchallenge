@@ -18,7 +18,7 @@ export default function HomeScreen() {
   const handleVerAula = (aula: typeof aulas[0]) => {
     // Navega para a tela de posts passando os dados da aula
     router.push({
-      pathname: '/screens/Post',
+      pathname: '/screens/Post/viewpost',
       params: {
         aulaId: aula.id,
         titulo: aula.titulo,
