@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View, Pressable, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // Tipo para os posts
 type Post = {
@@ -38,6 +38,10 @@ export default function PostsScreen() {
     },
   ]);
 
+  // Estado para o modal de exclusão
+  const [modalVisible, setModalVisible] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<string | null>(null);
+
   // Função para editar post - navega para a tela update
   const handleEditarPost = (post: Post) => {
     router.push({
@@ -51,24 +55,24 @@ export default function PostsScreen() {
 
   // Função para excluir post
   const handleExcluirPost = (postId: string) => {
-    Alert.alert(
-      'Confirmar Exclusão',
-      'Tem certeza que deseja excluir este post?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel'
-        },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: () => {
-            setPosts(posts.filter(post => post.id !== postId));
-            Alert.alert('Sucesso', 'Post excluído com sucesso!');
-          }
-        }
-      ]
-    );
+    setPostToDelete(postId);
+    setModalVisible(true);
+  };
+
+  // Confirmar exclusão
+  const confirmarExclusao = () => {
+    if (postToDelete) {
+      setPosts(posts.filter(post => post.id !== postToDelete));
+      setModalVisible(false);
+      setPostToDelete(null);
+      Alert.alert('Sucesso', 'Post excluído com sucesso!');
+    }
+  };
+
+  // Cancelar exclusão
+  const cancelarExclusao = () => {
+    setModalVisible(false);
+    setPostToDelete(null);
   };
 
   return (
@@ -140,6 +144,43 @@ export default function PostsScreen() {
           <Text style={styles.novoPostButtonText}>+ Novo Post</Text>
         </Pressable>
       </ScrollView>
+
+      {/* Modal de Confirmação de Exclusão */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={cancelarExclusao}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalIcon}>
+              <Text style={styles.modalIconText}>⚠️</Text>
+            </View>
+            
+            <Text style={styles.modalTitle}>Confirmar Exclusão</Text>
+            <Text style={styles.modalMessage}>
+              Tem certeza que deseja excluir este post? Esta ação não pode ser desfeita.
+            </Text>
+            
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.modalButton, styles.modalButtonCancel]}
+                onPress={cancelarExclusao}
+              >
+                <Text style={styles.modalButtonTextCancel}>Cancelar</Text>
+              </Pressable>
+              
+              <Pressable
+                style={[styles.modalButton, styles.modalButtonConfirm]}
+                onPress={confirmarExclusao}
+              >
+                <Text style={styles.modalButtonTextConfirm}>Excluir</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -306,5 +347,82 @@ const styles = StyleSheet.create({
   emptyStateSubtext: {
     fontSize: 14,
     color: '#BBB',
+  },
+  // Estilos do Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  modalIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FFF3E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalIconText: {
+    fontSize: 32,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalButtonCancel: {
+    backgroundColor: '#F5F5F5',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  modalButtonConfirm: {
+    backgroundColor: '#D32F2F',
+  },
+  modalButtonTextCancel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+  },
+  modalButtonTextConfirm: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFF',
   },
 });
