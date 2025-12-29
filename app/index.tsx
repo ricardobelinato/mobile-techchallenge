@@ -117,6 +117,7 @@ export default function LoginScreen() {
                   value={senha}
                   onChangeText={setSenha}
                   secureTextEntry={!showPassword}
+                  onSubmitEditing={handleLogin}
                 />
                 <TouchableOpacity
                   style={styles.eyeButton}
