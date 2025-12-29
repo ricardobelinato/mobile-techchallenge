@@ -5,6 +5,10 @@ import api from './api';
 // Busca posts = http://localhost:3000/posts/search?q=exemplo
 
 export async function getPosts(params: {}) {
-    const response = await api.get('/posts', { params });
+    const hasParams = Object.keys(params).length > 0;
+
+    const endpoint = hasParams ? '/posts/search' : '/posts';
+
+    const response = await api.get(endpoint, { params });
     return response.data;
 }

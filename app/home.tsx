@@ -123,6 +123,8 @@ export default function HomeScreen() {
           style={styles.searchInput}
           value={busca}
           onChangeText={setBusca}
+          onSubmitEditing={() => fetchPosts(busca)}
+          returnKeyType='search'
         />
       </View>
 
