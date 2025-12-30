@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Href, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { Animated, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -21,9 +21,15 @@ export default function CustomDrawer({ visible, onClose }: Props) {
     }).start();
   }, [visible]);
 
-  const go = (path: string) => {
+  const go = (path: Href) => {
     router.push(path);
     onClose();
+  };
+// trabalhe conosco, auxiliar de faturamento, hsp, em comp
+  const handleLogout = () => {
+    sessionStorage.removeItem('@auth_token');
+    sessionStorage.removeItem('@auth_user');
+    go("/");
   };
 
   return (
@@ -56,19 +62,9 @@ export default function CustomDrawer({ visible, onClose }: Props) {
           <Text style={styles.itemText}>Criar Postagem</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.item} onPress={() => go("/profile")}>
-          <Ionicons name="person-outline" size={23} color="#333" />
-          <Text style={styles.itemText}>Meu Perfil</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.item} onPress={() => go("/createProf")}>
-          <Ionicons name="add-outline" size={23} color="#333" />
-          <Text style={styles.itemText}>Criar Perfil Administrativo</Text>
-        </TouchableOpacity>
-
         <View style={styles.separator} />
 
-        <TouchableOpacity style={styles.logout} onPress={() => go("/")}>
+        <TouchableOpacity style={styles.logout} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={23} color="#D62839" />
           <Text style={styles.logoutText}>Sair</Text>
         </TouchableOpacity>
