@@ -80,8 +80,6 @@ export default function LoginScreen() {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.brandName}>SchoolOn</Text>
-            <Text style={styles.brandSubtitle}>EDUCATION PLATFORM</Text>
           </View>
         </LinearGradient>
 
@@ -97,7 +95,7 @@ export default function LoginScreen() {
               <Text style={styles.inputLabel}>E-mail</Text>
               <TextInput
                 style={styles.input}
-                placeholder="seu@email.com"
+                placeholder=""
                 placeholderTextColor="#999"
                 value={email}
                 onChangeText={setEmail}
@@ -112,7 +110,7 @@ export default function LoginScreen() {
               <View style={styles.passwordContainer}>
                 <TextInput
                   style={styles.passwordInput}
-                  placeholder="••••••••"
+                  placeholder=""
                   placeholderTextColor="#999"
                   value={senha}
                   onChangeText={setSenha}
@@ -128,12 +126,12 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.forgotPassword}
               onPress={() => Alert.alert('Info', 'Funcionalidade em desenvolvimento')}
             >
               <Text style={styles.forgotPasswordText}>Esqueceu sua senha?</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             {/* Botão de Login com gradiente */}
             <TouchableOpacity

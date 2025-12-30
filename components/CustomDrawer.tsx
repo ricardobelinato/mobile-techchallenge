@@ -25,7 +25,7 @@ export default function CustomDrawer({ visible, onClose }: Props) {
     router.push(path);
     onClose();
   };
-// trabalhe conosco, auxiliar de faturamento, hsp, em comp
+
   const handleLogout = () => {
     sessionStorage.removeItem('@auth_token');
     sessionStorage.removeItem('@auth_user');

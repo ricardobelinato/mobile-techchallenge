@@ -5,7 +5,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { Image, TouchableOpacity } from 'react-native';
+import { Image, Pressable, TouchableOpacity } from 'react-native';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -50,19 +50,16 @@ export default function RootLayout() {
             borderBottomColor: '#E5E5E5',
           },
           headerTitle: () => (
-            <Image
-              source={require('../assets/images/icon-school.png')}
-              style={{ width: 140, height: 40, resizeMode: 'contain' }}
-            />
+            <Pressable onPress={() => router.push("/home")}>
+              <Image
+                source={require('../assets/images/icon-school.png')}
+                style={{ width: 140, height: 40, resizeMode: 'contain' }}
+              />
+            </Pressable>
           ),
           headerLeft: () => (
             <TouchableOpacity onPress={() => setDrawerOpen(true)} style={{ marginLeft: 12 }}>
               <Ionicons name="menu" size={28} color="#000" />
-            </TouchableOpacity>
-          ),
-          headerRight: () => (
-            <TouchableOpacity onPress={() => console.log("Abrir perfil")} style={{ marginRight: 12 }}>
-              <Ionicons name="person-circle-outline" size={32} color="#000" />
             </TouchableOpacity>
           ),
           headerTitleAlign: 'center',
