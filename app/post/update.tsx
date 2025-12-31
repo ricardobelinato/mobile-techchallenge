@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+    ActivityIndicator,
     Alert,
     ScrollView,
     StyleSheet,
@@ -9,53 +10,92 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
+import { getPostById } from "../../src/api/getPostById";
+import { updatePost } from "../../src/api/updatePost";
 
 export default function PostUpdate() {
-    const { id } = useLocalSearchParams(); // pode vir undefined
+    const { id } = useLocalSearchParams();
     const router = useRouter();
 
     const [titulo, setTitulo] = useState("");
     const [conteudo, setConteudo] = useState("");
+    const [materia, setMateria] = useState("");
     const [autor, setAutor] = useState("");
+    const [dataCriacao, setDataCriacao] = useState("");
     const [carregando, setCarregando] = useState(true);
+    const [salvando, setSalvando] = useState(false);
 
-    // Mock — simula carregar da API
     const carregarPost = async () => {
-        setCarregando(true);
+        if (!id) {
+            Alert.alert("Erro", "ID do post não fornecido!");
+            router.back();
+            return;
+        }
 
-        await new Promise((r) => setTimeout(r, 600));
-
-        // Mock: se não tiver ID, usa um post aleatório
-        const fakeId = id ?? "123";
-        
-        setTitulo(`Título de demonstração ${fakeId}`);
-        setConteudo("Este é um conteúdo fictício carregado apenas para teste.");
-        setAutor("Professor João Silva");
-
-        setCarregando(false);
+        try {
+            setCarregando(true);
+            const post = await getPostById(Number(id));
+            
+            setTitulo(post.titulo || "");
+            setConteudo(post.conteudo || "");
+            setMateria(post.materia || "Não informada");
+            setAutor(post.Usuario?.nome || "Desconhecido");
+            
+            // Formata a data
+            if (post.data_criacao) {
+                const data = new Date(post.data_criacao);
+                setDataCriacao(data.toLocaleDateString('pt-BR'));
+            }
+        } catch (error) {
+            console.error("Erro ao carregar post:", error);
+            Alert.alert(
+                "Erro",
+                "Não foi possível carregar o post. Tente novamente.",
+                [{ text: "OK", onPress: () => router.back() }]
+            );
+        } finally {
+            setCarregando(false);
+        }
     };
 
     useEffect(() => {
         carregarPost();
-    }, []);
+    }, [id]);
 
-    const salvar = () => {
-        if (!titulo.trim() || !conteudo.trim() || !autor.trim()) {
-            Alert.alert("Atenção", "Preencha todos os campos!");
+    const salvar = async () => {
+        if (!titulo.trim() || !conteudo.trim()) {
+            Alert.alert("Atenção", "Título e conteúdo são obrigatórios!");
             return;
         }
 
-        Alert.alert("Sucesso", "Post atualizado com sucesso!", [
-            { text: "OK", onPress: () => router.push("/home") },
-        ]);
+        try {
+            setSalvando(true);
+
+            await updatePost(Number(id), {
+                titulo: titulo.trim(),
+                conteudo: conteudo.trim()
+            });
+
+            router.replace("/home");
+            Alert.alert("Sucesso", "Post atualizado com sucesso!", [
+                { text: "OK", onPress: () => router.replace("/home") },
+            ]);
+        } catch (error) {
+            console.error("Erro ao salvar post:", error);
+            Alert.alert(
+                "Erro",
+                "Não foi possível salvar as alterações. Tente novamente."
+            );
+        } finally {
+            setSalvando(false);
+        }
     };
 
     if (carregando) {
         return (
             <View style={styles.loading}>
-                <Text style={{ fontSize: 18, color: "#555" }}>
-                    Carregando post...
-                </Text>
+                <ActivityIndicator size="large" color="#024886" />
+                <Text style={styles.loadingText}>Carregando post...</Text>
             </View>
         );
     }
@@ -63,41 +103,67 @@ export default function PostUpdate() {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.title}>Editar Postagem</Text>
+            {/* <Text style={styles.subtitle}>ID: {id}</Text> */}
+            <br></br>
 
             <View style={styles.card}>
-                <Text style={styles.label}>Título</Text>
+                {/* CAMPOS EDITÁVEIS */}
+                <Text style={styles.label}>Título *</Text>
                 <TextInput
                     value={titulo}
                     onChangeText={setTitulo}
                     placeholder="Digite o título..."
                     style={styles.input}
+                    editable={!salvando}
                 />
 
-                <Text style={styles.label}>Autor</Text>
-                <TextInput
-                    value={autor}
-                    onChangeText={setAutor}
-                    placeholder="Nome do professor..."
-                    style={styles.input}
-                />
-
-                <Text style={styles.label}>Conteúdo</Text>
+                <Text style={styles.label}>Conteúdo *</Text>
                 <TextInput
                     value={conteudo}
                     onChangeText={setConteudo}
                     placeholder="Digite o conteúdo..."
                     multiline
-                    numberOfLines={6}
+                    numberOfLines={8}
                     style={[styles.input, styles.textArea]}
+                    editable={!salvando}
                 />
 
-                <TouchableOpacity style={styles.button} onPress={salvar}>
-                    <Text style={styles.buttonText}>Salvar Alterações</Text>
+                {/* CAMPOS SOMENTE LEITURA */}
+                <View style={styles.infoContainer}>
+                    <Text style={styles.infoLabel}>Matéria:</Text>
+                    <Text style={styles.infoValue}>{materia}</Text>
+                </View>
+
+                <View style={styles.infoContainer}>
+                    <Text style={styles.infoLabel}>Autor:</Text>
+                    <Text style={styles.infoValue}>{autor}</Text>
+                </View>
+
+                <View style={styles.infoContainer}>
+                    <Text style={styles.infoLabel}>Data de criação:</Text>
+                    <Text style={styles.infoValue}>{dataCriacao}</Text>
+                </View>
+
+                {/* BOTÕES */}
+                <TouchableOpacity
+                    style={[styles.button, salvando && styles.buttonDisabled]}
+                    onPress={salvar}
+                    disabled={salvando}
+                >
+                    {salvando ? (
+                        <ActivityIndicator color="#FFF" />
+                    ) : (
+                        <Text style={styles.buttonText}>Salvar Alterações</Text>
+                    )}
                 </TouchableOpacity>
                 
-                <TouchableOpacity  style={styles.goBackButton} onPress={() => router.navigate("/home")}>
+                <TouchableOpacity
+                    style={[styles.goBackButton, salvando && styles.buttonDisabled]}
+                    onPress={() => router.back()}
+                    disabled={salvando}
+                >
                     <Text style={styles.goBackButtonText}>Voltar</Text>
-                </TouchableOpacity >
+                </TouchableOpacity>
             </View>
         </ScrollView>
     );
@@ -108,24 +174,36 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#FFF",
+        backgroundColor: "#f3f5f7",
+    },
+    loadingText: {
+        fontSize: 16,
+        color: "#555",
+        marginTop: 12,
     },
     container: {
         padding: 20,
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#f3f5f7",
+        minHeight: "100%",
     },
     title: {
-        fontSize: 28,
-        fontWeight: "800",
-        marginBottom: 25,
-        color: "#1a1a1a",
+        fontSize: 24,
+        fontWeight: "700",
+        marginBottom: 4,
+        color: "#024886",
         textAlign: "center",
+    },
+    subtitle: {
+        fontSize: 14,
+        color: "#666",
+        textAlign: "center",
+        marginBottom: 20,
     },
     card: {
         backgroundColor: "#FFFFFF",
         borderRadius: 16,
         padding: 22,
-        elevation: 6,
+        elevation: 3,
         shadowColor: "#000",
         shadowOpacity: 0.08,
         shadowOffset: { width: 0, height: 3 },
@@ -136,7 +214,7 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         fontWeight: "600",
-        marginBottom: 6,
+        marginBottom: 8,
         color: "#2d2d2d",
     },
     input: {
@@ -154,18 +232,48 @@ const styles = StyleSheet.create({
         height: 140,
         textAlignVertical: "top",
     },
+    infoContainer: {
+        flexDirection: "row",
+        marginBottom: 12,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        backgroundColor: "#F8F9FA",
+        borderRadius: 8,
+        borderLeftWidth: 3,
+        borderLeftColor: "#024886",
+    },
+    infoLabel: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#555",
+        marginRight: 8,
+    },
+    infoValue: {
+        fontSize: 14,
+        color: "#333",
+        flex: 1,
+    },
     button: {
-        backgroundColor: "#1E88E5",
+        backgroundColor: "#024886",
         paddingVertical: 14,
         borderRadius: 10,
-        marginTop: 10,
+        marginTop: 20,
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: 50,
     },
     goBackButton: {
         borderWidth: 2,
-        borderColor: "#1E88E5",
+        borderColor: "#024886",
         paddingVertical: 14,
         borderRadius: 10,
         marginTop: 10,
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: 50,
+    },
+    buttonDisabled: {
+        opacity: 0.5,
     },
     buttonText: {
         textAlign: "center",
@@ -176,7 +284,7 @@ const styles = StyleSheet.create({
     goBackButtonText: {
         textAlign: "center",
         fontSize: 18,
-        fontWeight: "700",
-        color: "#1E88E5",
+        fontWeight: "600",
+        color: "#024886",
     },
 });

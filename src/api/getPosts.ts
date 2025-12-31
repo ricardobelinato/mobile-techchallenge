@@ -1,14 +1,20 @@
 import api from './api';
 
-// Retorna todos os posts = http://localhost:3000/posts
-// Busca Id do post = http://localhost:3000/posts/1
-// Busca posts = http://localhost:3000/posts/search?q=exemplo
+export async function getPosts(param?: string | number) {
+  let endpoint = "/posts";
+  let params;
 
-export async function getPosts(params: {}) {
-    const hasParams = Object.keys(params).length > 0;
+  if (param !== undefined && param !== "") {
+    if (!isNaN(Number(param))) {
+      // Busca por ID específico
+      endpoint = `/posts/${Number(param)}`;
+    } else {
+      // Busca por texto
+      endpoint = "/posts/search";
+      params = { q: param };
+    }
+  }
 
-    const endpoint = hasParams ? '/posts/search' : '/posts';
-
-    const response = await api.get(endpoint, { params });
-    return response.data;
+  const response = await api.get(endpoint, { params });
+  return response.data;
 }
