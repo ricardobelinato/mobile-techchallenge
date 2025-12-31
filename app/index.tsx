@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -84,8 +85,12 @@ export default function LoginScreen() {
         </LinearGradient>
 
         {/* Formulário */}
-        <View style={styles.formContainer}>
-          <View style={styles.formContent}>
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          style={styles.formContainer}
+        >
+          <View>
             <Text style={styles.welcomeTitle}>Bem-vindo de volta!</Text>
             <Text style={styles.welcomeSubtitle}>
               Faça login para acessar sua conta
@@ -174,7 +179,7 @@ export default function LoginScreen() {
           <Text style={styles.footer}>
             © 2025 SchoolOn. Todos os direitos reservados.
           </Text>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -230,9 +235,6 @@ const styles = StyleSheet.create({
     marginTop: -30,
     paddingTop: 30,
     paddingHorizontal: 24,
-  },
-  formContent: {
-    flex: 1,
   },
   welcomeTitle: {
     fontSize: 28,
