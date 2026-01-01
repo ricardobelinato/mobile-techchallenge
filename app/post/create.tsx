@@ -1,190 +1,287 @@
-import * as ImagePicker from "expo-image-picker";
-import React, { useState } from "react";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
-  Image,
-  Pressable,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  View,
+  TouchableOpacity,
+  View
 } from "react-native";
+import { createPost } from "../../src/api/createPost";
 
-export default function Page() {
-  const [titulo, setTitulo] = useState("");
-  const [conteudo, setConteudo] = useState("");
-  const [materia, setMateria] = useState("");
-  const [imagem, setImagem] = useState<string | null>(null);
+export default function PostCreate() {
+    const router = useRouter();
 
-  const escolherImagem = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
+    const [titulo, setTitulo] = useState("");
+    const [conteudo, setConteudo] = useState("");
+    const [materia, setMateria] = useState("");
+    const [imagem, setImagem] = useState("");
+    const [criando, setCriando] = useState(false);
+    const [userId, setUserId] = useState(null);
 
-    if (!result.canceled) {
-      setImagem(result.assets[0].uri);
-    }
-  };
+    useEffect(() => {
+        try {
+            if (Platform.OS === "web") {
+                const authUser = sessionStorage.getItem('@auth_user');
+                if (authUser) {
+                    const user = JSON.parse(authUser);
+                    setUserId(user.id);
+                    console.log("User ID carregado:", user.id);
+                } else {
+                    console.error("Usuário não encontrado no sessionStorage");
+                }
+            }
+        } catch (error) {
+            console.error("Erro ao buscar usuário:", error);
+        }
+    }, []);
 
-  const enviarPost = () => {
-    if (!titulo.trim()) {
-      Alert.alert("Erro", "O título é obrigatório.");
-      return;
-    }
+    const criar = async () => {
+        if (!titulo.trim() || !conteudo.trim()) {
+            if (Platform.OS === "web") {
+                alert("Título e conteúdo são obrigatórios!");
+            } else {
+                Alert.alert("Atenção", "Título e conteúdo são obrigatórios!");
+            }
+            return;
+        }
 
-    const novoPost = { titulo, conteudo, materia, imagem };
-    console.log("POST CRIADO (simulado):", novoPost);
+        if (!userId) {
+            if (Platform.OS === "web") {
+                alert("Erro: Usuário não identificado. Faça login novamente.");
+            } else {
+                Alert.alert("Erro", "Usuário não identificado. Faça login novamente.");
+            }
+            return;
+        }
 
-    Alert.alert("Sucesso", "Post criado com sucesso!");
+        try {
+            setCriando(true);
 
-    setTitulo("");
-    setConteudo("");
-    setMateria("");
-    setImagem(null);
-  };
+            const postData = {
+                titulo: titulo.trim(),
+                conteudo: conteudo.trim(),
+                usuario_id: userId,
+                ...(materia.trim() && { materia: materia.trim() }),
+                ...(imagem.trim() && { imagem: imagem.trim() }),
+            };
 
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-      <Text style={styles.headerTitle}>Criar Post</Text>
+            console.log("Dados sendo enviados:", postData);
 
-      {/* TÍTULO */}
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Título *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite o título"
-          placeholderTextColor="#999"
-          value={titulo}
-          onChangeText={setTitulo}
-        />
-      </View>
+            const result = await createPost(postData);
+            
+            console.log("Post criado com sucesso:", result);
 
-      {/* MATÉRIA */}
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Matéria</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: Programação, Matemática…"
-          placeholderTextColor="#999"
-          value={materia}
-          onChangeText={setMateria}
-        />
-      </View>
+            if (Platform.OS === "web") {
+                alert("Post criado com sucesso!");
+                router.replace("/home");
+            } else {
+                Alert.alert("Sucesso", "Post criado com sucesso!", [
+                    { text: "OK", onPress: () => router.replace("/home") },
+                ]);
+            }
+        } catch (error) {
+            console.error("Erro completo ao criar post:", error);
+            console.error("Response data:", error?.response?.data);
+            console.error("Response status:", error?.response?.status);
+            
+            if (Platform.OS === "web") {
+                alert(`Erro ao criar post: ${error?.response?.data?.erro || error.message}`);
+            } else {
+                Alert.alert(
+                    "Erro",
+                    `Não foi possível criar o post: ${error?.response?.data?.erro || error.message}`
+                );
+            }
+        } finally {
+            setCriando(false);
+        }
+    };
 
-      {/* CONTEÚDO */}
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Conteúdo</Text>
-        <TextInput
-          style={[styles.input, styles.areaTexto]}
-          placeholder="Digite o conteúdo da postagem"
-          placeholderTextColor="#999"
-          value={conteudo}
-          onChangeText={setConteudo}
-          multiline
-        />
-      </View>
+    return (
+        <ScrollView contentContainerStyle={styles.container}>
+            <Text style={styles.title}>Criar Nova Postagem</Text>
+            <View style={{ height: 20 }} />
 
-      {/* IMAGEM */}
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Imagem</Text>
+            <View style={styles.card}>
+                {/* DEBUG INFO */}
+                {/* {__DEV__ && userId && (
+                    <View style={[styles.infoBox, { backgroundColor: "#E8F8E8", borderLeftColor: "#28a745" }]}>
+                        <Text style={[styles.infoText, { color: "#28a745" }]}>
+                            ✓ Logado como usuário ID: {userId}
+                        </Text>
+                    </View>
+                )} */}
 
-        <Pressable style={styles.btnUpload} onPress={escolherImagem}>
-          <Text style={styles.btnUploadTexto}>
-            {imagem ? "Alterar imagem" : "Selecionar imagem"}
-          </Text>
-        </Pressable>
+                {/* CAMPOS EDITÁVEIS */}
+                <Text style={styles.label}>Título *</Text>
+                <TextInput
+                    value={titulo}
+                    onChangeText={setTitulo}
+                    placeholder="Digite o título..."
+                    style={styles.input}
+                    editable={!criando}
+                />
 
-        {imagem && (
-          <Image source={{ uri: imagem }} style={styles.previewImagem} />
-        )}
-      </View>
+                <Text style={styles.label}>Conteúdo *</Text>
+                <TextInput
+                    value={conteudo}
+                    onChangeText={setConteudo}
+                    placeholder="Digite o conteúdo..."
+                    multiline
+                    numberOfLines={8}
+                    style={[styles.input, styles.textArea]}
+                    editable={!criando}
+                />
 
-      {/* BOTÃO SALVAR */}
-      <Pressable style={styles.btnSalvar} onPress={enviarPost}>
-        <Text style={styles.btnSalvarTexto}>Criar Post</Text>
-      </Pressable>
-    </ScrollView>
-  );
+                <Text style={styles.label}>Matéria (opcional)</Text>
+                <TextInput
+                    value={materia}
+                    onChangeText={setMateria}
+                    placeholder="Ex: Matemática, Português..."
+                    style={styles.input}
+                    editable={!criando}
+                />
+
+                <Text style={styles.label}>URL da Imagem (opcional)</Text>
+                <TextInput
+                    value={imagem}
+                    onChangeText={setImagem}
+                    placeholder="https://exemplo.com/imagem.jpg"
+                    style={styles.input}
+                    editable={!criando}
+                    autoCapitalize="none"
+                    keyboardType="url"
+                />
+
+                {/* INFO */}
+                <View style={styles.infoBox}>
+                    <Text style={styles.infoText}>
+                        * Campos obrigatórios
+                    </Text>
+                </View>
+
+                {/* BOTÕES */}
+                <TouchableOpacity
+                    style={[styles.button, criando && styles.buttonDisabled]}
+                    onPress={criar}
+                    disabled={criando}
+                >
+                    {criando ? (
+                        <ActivityIndicator color="#FFF" />
+                    ) : (
+                        <Text style={styles.buttonText}>Criar Post</Text>
+                    )}
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                    style={[styles.goBackButton, criando && styles.buttonDisabled]}
+                    onPress={() => router.back()}
+                    disabled={criando}
+                >
+                    <Text style={styles.goBackButtonText}>Voltar</Text>
+                </TouchableOpacity>
+            </View>
+        </ScrollView>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F3F6FA",
-    padding: 20,
-  },
-
-  headerTitle: {
-    fontSize: 30,
-    fontWeight: "800",
-    color: "#024886",
-    marginBottom: 25,
-    textAlign: "center",
-  },
-
-  formGroup: {
-    marginBottom: 20,
-  },
-
-  label: {
-    fontSize: 15,
-    fontWeight: "700",
-    marginBottom: 8,
-    color: "#2E2E2E",
-  },
-
-  input: {
-    backgroundColor: "#FFFFFF",
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: "#D9DDE1",
-    fontSize: 15,
-    color: "#333",
-  },
-
-  areaTexto: {
-    height: 130,
-    textAlignVertical: "top",
-  },
-
-  btnUpload: {
-    backgroundColor: "#E6EEF8",
-    padding: 12,
-    borderRadius: 10,
-    alignItems: "center",
-    borderWidth: 1.3,
-    borderColor: "#B9CEE6",
-  },
-
-  btnUploadTexto: {
-    color: "#024886",
-    fontSize: 15,
-    fontWeight: "700",
-  },
-
-  previewImagem: {
-    width: "100%",
-    height: 220,
-    borderRadius: 12,
-    marginTop: 12,
-    borderWidth: 1.5,
-    borderColor: "#CBD6E2",
-  },
-
-  btnSalvar: {
-    backgroundColor: "#024886",
-    paddingVertical: 16,
-    borderRadius: 14,
-    marginTop: 10,
-  },
-
-  btnSalvarTexto: {
-    color: "#FFF",
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "800",
-  },
+    container: {
+        padding: 20,
+        backgroundColor: "#f3f5f7",
+        minHeight: "100%",
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: "700",
+        marginBottom: 4,
+        color: "#024886",
+        textAlign: "center",
+    },
+    card: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 16,
+        padding: 22,
+        elevation: 3,
+        shadowColor: "#000",
+        shadowOpacity: 0.08,
+        shadowOffset: { width: 0, height: 3 },
+        shadowRadius: 8,
+        borderWidth: 1,
+        borderColor: "#E9E9E9",
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: "600",
+        marginBottom: 8,
+        color: "#2d2d2d",
+    },
+    input: {
+        backgroundColor: "#F5F6FA",
+        borderRadius: 10,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        fontSize: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: "#D9D9D9",
+        color: "#000",
+    },
+    textArea: {
+        height: 140,
+        textAlignVertical: "top",
+    },
+    infoBox: {
+        backgroundColor: "#E8F4F8",
+        paddingVertical: 10,
+        paddingHorizontal: 14,
+        borderRadius: 8,
+        marginBottom: 20,
+        borderLeftWidth: 3,
+        borderLeftColor: "#024886",
+    },
+    infoText: {
+        fontSize: 13,
+        color: "#024886",
+        fontStyle: "italic",
+    },
+    button: {
+        backgroundColor: "#024886",
+        paddingVertical: 14,
+        borderRadius: 10,
+        marginTop: 10,
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: 50,
+    },
+    goBackButton: {
+        borderWidth: 2,
+        borderColor: "#024886",
+        paddingVertical: 14,
+        borderRadius: 10,
+        marginTop: 10,
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: 50,
+    },
+    buttonDisabled: {
+        opacity: 0.5,
+    },
+    buttonText: {
+        textAlign: "center",
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#FFF",
+    },
+    goBackButtonText: {
+        textAlign: "center",
+        fontSize: 18,
+        fontWeight: "600",
+        color: "#024886",
+    },
 });

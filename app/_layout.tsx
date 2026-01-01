@@ -44,6 +44,7 @@ export default function RootLayout() {
 
       <Stack
         screenOptions={{
+          title: 'SchoolOn',
           headerStyle: {
             backgroundColor: '#FFFFFF',
             borderBottomWidth: 1,
