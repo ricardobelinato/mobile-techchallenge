@@ -1,6 +1,6 @@
+import { useAuth } from "@/src/context/AuthContext";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -22,6 +22,7 @@ import { auth } from '../src/api/auth';
 const { height } = Dimensions.get('window');
 
 export default function LoginScreen() {
+  const { login } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -29,6 +30,7 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+
     if (!email || !senha) {
       Alert.alert('Erro', 'Por favor, preencha e-mail e senha.');
       return;
@@ -39,20 +41,10 @@ export default function LoginScreen() {
     try {
       const response = await auth(email, senha);
 
-      try {
-        await Promise.all([
-          SecureStore.setItemAsync('token', response.token),
-          SecureStore.setItemAsync('user', JSON.stringify(response))
-        ]);
-        console.log("Storage salvo!");
-      } catch (err) {
-        console.log("Erro ao salvar no SecureStore:", err);
-      }
-
       router.replace('/home');
+
     } catch {
       Alert.alert('Erro', 'E-mail ou senha incorretos.');
-      window.alert('E-mail ou senha incorretos.')
     } finally {
       setLoading(false);
     }
@@ -130,13 +122,6 @@ export default function LoginScreen() {
                 </TouchableOpacity>
               </View>
             </View>
-
-            {/* <TouchableOpacity
-              style={styles.forgotPassword}
-              onPress={() => Alert.alert('Info', 'Funcionalidade em desenvolvimento')}
-            >
-              <Text style={styles.forgotPasswordText}>Esqueceu sua senha?</Text>
-            </TouchableOpacity> */}
 
             {/* Botão de Login com gradiente */}
             <TouchableOpacity

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 export default function RedirectCreate() {
   useEffect(() => {
-    router.push("/posts/create");
+    router.push('/post/create');
   }, []);
 
   return null;

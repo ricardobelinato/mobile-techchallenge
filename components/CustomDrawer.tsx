@@ -1,7 +1,8 @@
+import { useAuth } from "@/src/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
-import { Animated, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Animated, Image, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface Props {
   visible: boolean;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function CustomDrawer({ visible, onClose }: Props) {
+  const { auth, logout } = useAuth();
   const slideAnim = useRef(new Animated.Value(-280)).current;
   const router = useRouter();
 
@@ -26,12 +28,28 @@ export default function CustomDrawer({ visible, onClose }: Props) {
     onClose();
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('@auth_token');
-    sessionStorage.removeItem('@auth_user');
+  // function isBrowser() {
+  //   return typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined';
+  // }
+
+  // const handleLogout = () => {
+  //   if (Platform.OS === 'web') {
+  //     sessionStorage.removeItem('@auth_token');
+  //     sessionStorage.removeItem('@auth_user');
+  //   }
+    
+  //   go("/");
+  // };
+
+  const handleLogout = async () => {
+    if (Platform.OS === "web") {
+      sessionStorage.removeItem("@auth_token");
+      sessionStorage.removeItem("@auth_user");
+    }
+    
     go("/");
   };
-
+  
   return (
     <>
       {visible && (
@@ -45,7 +63,7 @@ export default function CustomDrawer({ visible, onClose }: Props) {
             source={require("../assets/images/favicon.png")}
             style={styles.avatar}
           />
-          <Text style={styles.name}>Olá, Professor</Text>
+          <Text style={styles.name}>Olá, {auth?.user?.nome}</Text>
           <Text style={styles.role}>Conta Educacional</Text>
         </View>
 
@@ -57,10 +75,12 @@ export default function CustomDrawer({ visible, onClose }: Props) {
           <Text style={styles.itemText}>Página Inicial</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.item} onPress={() => go("/post/create")}>
-          <Ionicons name="create-outline" size={23} color="#333" />
-          <Text style={styles.itemText}>Criar Postagem</Text>
-        </TouchableOpacity>
+        {auth?.user?.admin && (
+          <TouchableOpacity style={styles.item} onPress={() => go("/post/create")}>
+            <Ionicons name="create-outline" size={23} color="#333" />
+            <Text style={styles.itemText}>Criar Postagem</Text>
+          </TouchableOpacity>
+        )}
 
         <View style={styles.separator} />
 

@@ -1,42 +1,44 @@
 import CustomDrawer from '@/components/CustomDrawer';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AuthProvider, useAuth } from '@/src/context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, usePathname, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { Image, Pressable, TouchableOpacity } from 'react-native';
 
 export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <LayoutContent />
+    </AuthProvider>
+  );
+}
+
+function LayoutContent() {
+  const { auth, loading } = useAuth();
   const colorScheme = useColorScheme();
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  
-  const segments = useSegments();
   const router = useRouter();
-  
-  const [isAuthenticated, setIsAuthenticated] = useState(false); 
-  const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      setIsLoading(false);
-    };
-    checkAuth();
-  }, []);
+    if (loading) return;
 
-  useEffect(() => {
-    if (isLoading) return;
+    const isLogged = !!auth;
+    const isLoginRoute = pathname === '/' || pathname === '/index';
 
-    const inAuthGroup = segments[0] === '(tabs)' || segments[0] === 'posts';
-
-    if (!isAuthenticated && inAuthGroup) {
-      router.replace('/'); 
-    } else if (isAuthenticated && (segments[0] === undefined || segments[0] === 'index')) {
-      router.replace('/(tabs)/home');
+    if (!isLogged && !isLoginRoute) {
+      router.replace('/');
     }
-  }, [isAuthenticated, segments, isLoading]);
 
-  if (isLoading) return null; 
+    // if (isLogged && isLoginRoute) {
+    //   router.replace('/home');
+    // }
+  }, [auth, loading, pathname]);
+
+  if (loading) return null;
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -51,7 +53,7 @@ export default function RootLayout() {
             borderBottomColor: '#E5E5E5',
           },
           headerTitle: () => (
-            <Pressable onPress={() => router.push("/home")}>
+            <Pressable onPress={() => router.push('/home')}>
               <Image
                 source={require('../assets/images/icon-school.png')}
                 style={{ width: 140, height: 40, resizeMode: 'contain' }}
@@ -66,11 +68,11 @@ export default function RootLayout() {
           headerTitleAlign: 'center',
         }}
       >
-        {/* Passamos o estado de autenticação para as telas se necessário via Context ou Params */}
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="home" />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="posts/create" options={{ title: "Criar Post" }} />
-        <Stack.Screen name="posts/update" options={{ title: "Editar Post" }} />
+        <Stack.Screen name="post/create" options={{ title: 'Criar Post' }} />
+        <Stack.Screen name="post/update" options={{ title: 'Editar Post' }} />
       </Stack>
 
       <StatusBar style="dark" />
