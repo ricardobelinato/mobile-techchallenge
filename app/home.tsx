@@ -13,8 +13,8 @@ import {
   TextInput,
   View
 } from 'react-native';
-import { deletePost } from '../src/api/deletePost';
-import { getPosts } from '../src/api/getPosts';
+import { deletePost } from '../src/api/posts/deletePost';
+import { getPosts } from '../src/api/posts/getPosts';
 import { getAuth } from '../src/storage/authStorage';
 
 type User = {
@@ -175,10 +175,10 @@ export default function HomeScreen() {
     </View>
   );
 
-  async function fetchPosts(query?: string) {
+  async function fetchPosts() {
     try {
       setLoading(true);
-      const data = await getPosts(query);
+      const data = await getPosts();
 
       if (Array.isArray(data)) {
         setPosts(data);

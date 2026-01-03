@@ -46,7 +46,7 @@ export default function CustomDrawer({ visible, onClose }: Props) {
       sessionStorage.removeItem("@auth_token");
       sessionStorage.removeItem("@auth_user");
     }
-    
+
     go("/");
   };
   
@@ -79,6 +79,27 @@ export default function CustomDrawer({ visible, onClose }: Props) {
           <TouchableOpacity style={styles.item} onPress={() => go("/post/create")}>
             <Ionicons name="create-outline" size={23} color="#333" />
             <Text style={styles.itemText}>Criar Postagem</Text>
+          </TouchableOpacity>
+        )}
+
+        {auth?.user?.admin && (
+          <TouchableOpacity style={styles.item} onPress={() => go("/post/create")}>
+            <Ionicons name="create-outline" size={23} color="#333" />
+            <Text style={styles.itemText}>Cadastrar novo professor</Text>
+          </TouchableOpacity>
+        )}
+
+        {auth?.user?.admin && (
+          <TouchableOpacity style={styles.item} onPress={() => go("/post/create")}>
+            <Ionicons name="create-outline" size={23} color="#333" />
+            <Text style={styles.itemText}>Gestão de professores</Text>
+          </TouchableOpacity>
+        )}
+
+        {auth?.user?.admin && (
+          <TouchableOpacity style={styles.item} onPress={() => go("/post/create")}>
+            <Ionicons name="create-outline" size={23} color="#333" />
+            <Text style={styles.itemText}>Gestão de alunos</Text>
           </TouchableOpacity>
         )}
 

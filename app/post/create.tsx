@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { createPost } from "../../src/api/createPost";
+import { createPost } from "../../src/api/posts/createPost";
 
 export default function PostCreate() {
     const router = useRouter();

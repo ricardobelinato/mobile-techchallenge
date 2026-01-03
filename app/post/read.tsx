@@ -1,16 +1,16 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
-import { getPostById } from "../../src/api/getPostById";
+import { getPostById } from "../../src/api/posts/getPostById";
 import { getAuth } from "../../src/storage/authStorage";
 
 export default function PostRead() {

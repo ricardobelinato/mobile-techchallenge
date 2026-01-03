@@ -1,17 +1,17 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
-import { getPostById } from "../../src/api/getPostById";
-import { updatePost } from "../../src/api/updatePost";
+import { getPostById } from "../../src/api/posts/getPostById";
+import { updatePost } from "../../src/api/posts/updatePost";
 
 export default function PostUpdate() {
     const { id } = useLocalSearchParams();
@@ -102,9 +102,8 @@ export default function PostUpdate() {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.title}>Editar Postagem</Text>
+            <Text style={styles.title}>Editar Postagem{"\n"}</Text>
             {/* <Text style={styles.subtitle}>ID: {id}</Text> */}
-            <br></br>
 
             <View style={styles.card}>
                 {/* CAMPOS EDITÁVEIS */}

@@ -17,7 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { auth } from '../src/api/auth';
+import { auth } from '../src/api/auth/auth';
 
 const { height } = Dimensions.get('window');
 
