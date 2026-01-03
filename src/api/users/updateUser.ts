@@ -1,6 +1,6 @@
  import api from '../api';
 
-export async function updatePost(id: number, data: {
+export async function updateUser(id: number, data: {
     nome: string;
     email: string;
     senha: string;

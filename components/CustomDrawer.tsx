@@ -28,19 +28,6 @@ export default function CustomDrawer({ visible, onClose }: Props) {
     onClose();
   };
 
-  // function isBrowser() {
-  //   return typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined';
-  // }
-
-  // const handleLogout = () => {
-  //   if (Platform.OS === 'web') {
-  //     sessionStorage.removeItem('@auth_token');
-  //     sessionStorage.removeItem('@auth_user');
-  //   }
-    
-  //   go("/");
-  // };
-
   const handleLogout = async () => {
     if (Platform.OS === "web") {
       sessionStorage.removeItem("@auth_token");
@@ -83,22 +70,15 @@ export default function CustomDrawer({ visible, onClose }: Props) {
         )}
 
         {auth?.user?.admin && (
-          <TouchableOpacity style={styles.item} onPress={() => go("/post/create")}>
-            <Ionicons name="create-outline" size={23} color="#333" />
-            <Text style={styles.itemText}>Cadastrar novo professor</Text>
-          </TouchableOpacity>
-        )}
-
-        {auth?.user?.admin && (
-          <TouchableOpacity style={styles.item} onPress={() => go("/post/create")}>
-            <Ionicons name="create-outline" size={23} color="#333" />
+          <TouchableOpacity style={styles.item} onPress={() => go("/users/teachers/read")}>
+            <Ionicons name="person-outline" size={23} color="#333" />
             <Text style={styles.itemText}>Gestão de professores</Text>
           </TouchableOpacity>
         )}
 
         {auth?.user?.admin && (
-          <TouchableOpacity style={styles.item} onPress={() => go("/post/create")}>
-            <Ionicons name="create-outline" size={23} color="#333" />
+          <TouchableOpacity style={styles.item} onPress={() => go("/users/students/read")}>
+            <Ionicons name="people-outline" size={23} color="#333" />
             <Text style={styles.itemText}>Gestão de alunos</Text>
           </TouchableOpacity>
         )}
