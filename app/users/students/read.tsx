@@ -102,17 +102,6 @@ export default function AlunosScreen() {
         )}
         
         <View style={styles.botoesContainer}>
-          <Pressable
-            style={({ pressed }) => [styles.botaoVer, pressed && { opacity: 0.7 }]}
-            onPress={() => router.push({
-              pathname: "/alunos/read",
-              params: { id: item.id }
-            })}
-          >
-            <Ionicons name="eye" size={16} color="#fff" />
-            <Text style={styles.textoBotaoVer}>Ver</Text>
-          </Pressable>
-
           {auth?.user?.admin && (
             <Pressable
               style={({ pressed }) => [styles.botaoEditar, pressed && { opacity: 0.7 }]}
