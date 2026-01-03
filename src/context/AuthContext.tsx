@@ -1,5 +1,7 @@
 import { getAuth } from "@/src/storage/authStorage";
+import { router } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
+import { Platform } from "react-native";
 
 type User = {
   id: number;
@@ -34,10 +36,16 @@ export function AuthProvider({ children }) {
         })();
     }, []);
 
-    const logout = () => {
+    const logout: () => Promise<void> = async () => {
+      if(Platform.OS === 'web') {
         sessionStorage.removeItem("@auth_token");
         sessionStorage.removeItem("@auth_user");
-        setAuth(null);
+      } else {
+        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("user");
+      }
+      setAuth(null);
+      router.replace('/');
     };
 
     const login = async (data: AuthData) => {

@@ -2,7 +2,7 @@ import { useAuth } from "@/src/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
-import { Animated, Image, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Animated, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface Props {
   visible: boolean;
@@ -29,12 +29,7 @@ export default function CustomDrawer({ visible, onClose }: Props) {
   };
 
   const handleLogout = async () => {
-    if (Platform.OS === "web") {
-      sessionStorage.removeItem("@auth_token");
-      sessionStorage.removeItem("@auth_user");
-    }
-
-    go("/");
+    logout();
   };
   
   return (
