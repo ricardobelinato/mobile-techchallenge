@@ -54,7 +54,6 @@ O projeto segue uma arquitetura organizada em **camadas**, separando responsabil
 mobile-techchallenge/
 ├── .expo/
 │    ├── types/
-│    ├── web/
 │    ├── devices.json
 │    └── README.md
 │ 
@@ -65,6 +64,9 @@ mobile-techchallenge/
 ├── app/
 │    ├── (tabs)/
 │    ├── post/
+│    ├── users/
+│    │     ├── students/
+│    │     └── teachers/
 │    ├── _layout.tsx
 │    ├── createProf.tsx
 │    ├── home.tsx
@@ -79,6 +81,11 @@ mobile-techchallenge/
 ├── scripts/             
 ├── src/
 │    ├── api/
+│    │     ├── auth/
+│    │     ├── posts/
+│    │     ├── users/
+│    │     └── api.ts
+│    ├── context/
 │    └── storage/
 │
 ├── .gitignore
@@ -111,17 +118,6 @@ mobile-techchallenge/
 
 - **Login:** Acesso restrito para professores.
 - **Permissões:** Apenas professores podem acessar páginas de criação e edição, alunos possuem acesso apenas para leitura.
-
----
-
-## 🚧 Dificuldades Encontradas
-
-### 1. Problema 1
-
-descrição
-
-**✅ Solução 1:**  
-solução
 
 ---
 
