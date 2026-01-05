@@ -2,6 +2,7 @@ import { getAuth } from "@/src/storage/authStorage";
 import { router } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Platform } from "react-native";
+import SecureStore from 'expo-secure-store'
 
 type User = {
   id: number;
@@ -24,7 +25,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-export function AuthProvider({ children }) {
+export function AuthProvider({ children }: React.PropsWithChildren) {
     const [auth, setAuth] = useState<AuthData | null>(null);
     const [loading, setLoading] = useState(true);
 

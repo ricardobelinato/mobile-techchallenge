@@ -49,9 +49,8 @@ function LayoutContent() {
           title: 'SchoolOn',
           headerStyle: {
             backgroundColor: '#FFFFFF',
-            borderBottomWidth: 1,
-            borderBottomColor: '#E5E5E5',
           },
+          headerShadowVisible: true,
           headerTitle: () => (
             <Pressable onPress={() => router.push('/home')}>
               <Image
