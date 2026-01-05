@@ -1,5 +1,5 @@
 import { clearAuth, getAuth, saveAuth } from "@/src/storage/authStorage";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
 
 type User = {
@@ -17,7 +17,7 @@ type AuthData = {
 type AuthContextType = {
   auth: AuthData | null;
   loading: boolean;
-  login: (data: AuthData) => Promise<void>;
+  login: (apiResponse: any) => Promise<void>;
   logout: () => void;
 };
 
@@ -26,25 +26,44 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [auth, setAuth] = useState<AuthData | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
-      const data = await getAuth();
-      setAuth(data);
-      setLoading(false);
+      try {
+        const data = await getAuth();
+        setAuth(data);
+      } catch (error) {
+        console.error("Erro ao carregar dados de autenticação:", error);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
+  const login = async (apiResponse: any) => {
+    const formattedData: AuthData = {
+      token: apiResponse.token,
+      user: {
+        id: apiResponse.id,
+        nome: apiResponse.nome,
+        email: apiResponse.email,
+        admin: apiResponse.admin,
+      },
+    };
+
+    await saveAuth(formattedData);
+
+    setAuth(formattedData);
+  };
+
+  /**
+   * Função de Logout
+   */
   const logout = async () => {
     await clearAuth();
     setAuth(null);
-    router.replace('/');
-  };
-
-  const login = async (data: AuthData) => {
-    await saveAuth(data); 
-
-    setAuth(data); 
+    router.replace("/");
   };
 
   return (
@@ -53,5 +72,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+  }
+  return context;
+};

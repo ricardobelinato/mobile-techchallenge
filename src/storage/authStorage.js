@@ -9,9 +9,13 @@ function isBrowser() {
 }
 
 export async function saveAuth(data) {
-  // data aqui deve ser o objeto que vem da nossa API
   const token = data.token;
-  const user = data.user;
+  const user = {
+    id: data.id,
+    nome: data.nome,
+    email: data.email,
+    admin: data.admin
+  };
 
   if (Platform.OS === 'web' && isBrowser()) {
     sessionStorage.setItem(TOKEN_KEY, token);
