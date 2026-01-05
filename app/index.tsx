@@ -1,7 +1,7 @@
 import { useAuth } from "@/src/context/AuthContext";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -22,7 +22,7 @@ import { auth } from '../src/api/auth/auth';
 const { height } = Dimensions.get('window');
 
 export default function LoginScreen() {
-  const { login } = useAuth();
+  const { login } = useAuth(); // Função que agora atualiza o estado global
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -30,7 +30,6 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-
     if (!email || !senha) {
       Alert.alert('Erro', 'Por favor, preencha e-mail e senha.');
       return;
@@ -39,11 +38,16 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
+      // 1. Faz a chamada da API
       const response = await auth(email, senha);
 
+      // 2. ENVIA OS DADOS PARA O CONTEXTO (Isso resolve o problema do menu)
+      await login(response);
+
+      // 3. Redireciona
       router.replace('/home');
 
-    } catch {
+    } catch (error) {
       Alert.alert('Erro', 'E-mail ou senha incorretos.');
     } finally {
       setLoading(false);

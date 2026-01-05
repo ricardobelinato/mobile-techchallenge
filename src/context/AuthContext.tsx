@@ -1,5 +1,5 @@
-import { getAuth } from "@/src/storage/authStorage";
-import { router } from "expo-router";
+import { clearAuth, getAuth, saveAuth } from "@/src/storage/authStorage";
+import { useRouter } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Platform } from "react-native";
 import SecureStore from 'expo-secure-store'
@@ -19,44 +19,54 @@ type AuthData = {
 type AuthContextType = {
   auth: AuthData | null;
   loading: boolean;
-  login: (data: AuthData) => Promise<void>;
+  login: (apiResponse: any) => Promise<void>;
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-export function AuthProvider({ children }: React.PropsWithChildren) {
-    const [auth, setAuth] = useState<AuthData | null>(null);
-    const [loading, setLoading] = useState(true);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [auth, setAuth] = useState<AuthData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-    useEffect(() => {
-        (async () => {
+  useEffect(() => {
+    (async () => {
+      try {
         const data = await getAuth();
         setAuth(data);
+      } catch (error) {
+        console.error("Erro ao carregar dados de autenticação:", error);
+      } finally {
         setLoading(false);
-        })();
-    }, []);
-
-    const logout: () => Promise<void> = async () => {
-      if(Platform.OS === 'web') {
-        sessionStorage.removeItem("@auth_token");
-        sessionStorage.removeItem("@auth_user");
-      } else {
-        await SecureStore.deleteItemAsync("token");
-        await SecureStore.deleteItemAsync("user");
       }
-      setAuth(null);
-      router.replace('/');
+    })();
+  }, []);
+
+  const login = async (apiResponse: any) => {
+    const formattedData: AuthData = {
+      token: apiResponse.token,
+      user: {
+        id: apiResponse.id,
+        nome: apiResponse.nome,
+        email: apiResponse.email,
+        admin: apiResponse.admin,
+      },
     };
 
-    const login = async (data: AuthData) => {
-        await Promise.all([
-            SecureStore.setItemAsync("token", data.token),
-            SecureStore.setItemAsync("user", JSON.stringify(data.user)),
-        ]);
+    await saveAuth(formattedData);
 
-        setAuth(data);
-    };
+    setAuth(formattedData);
+  };
+
+  /**
+   * Função de Logout
+   */
+  const logout = async () => {
+    await clearAuth();
+    setAuth(null);
+    router.replace("/");
+  };
 
   return (
     <AuthContext.Provider value={{ auth, loading, login, logout }}>
@@ -64,5 +74,10 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     </AuthContext.Provider>
   );
 }
-
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+  }
+  return context;
+};
