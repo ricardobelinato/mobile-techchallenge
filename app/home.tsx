@@ -16,6 +16,7 @@ import {
 import { deletePost } from '../src/api/posts/deletePost';
 import { getPosts } from '../src/api/posts/getPosts';
 import { getAuth } from '../src/storage/authStorage';
+import { useRouter } from "expo-router";
 
 type User = {
   id: number;
@@ -52,17 +53,7 @@ export default function HomeScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [busca, setBusca] = useState("");
-
-  useEffect(() => {
-    let mounted = true;
-
-    (async () => {
-      const data = await getAuth();
-      if (mounted) setAuth(data);
-    })();
-
-    return () => { mounted = false };
-  }, []);
+  const router = useRouter();
 
   useEffect(() => {
     fetchPosts();

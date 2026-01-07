@@ -31,7 +31,6 @@ export default function CustomDrawer({ visible, onClose }: Props) {
   const handleLogout = async () => {
     logout();
   };
-  console.log(auth?.user)
   return (
     <>
       {visible && (
