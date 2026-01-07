@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import api from "../api/api.ts"
 
-const TOKEN_KEY = '@auth_token';
-const USER_KEY = '@auth_user';
+export const TOKEN_KEY = 'token';
+export const USER_KEY = 'auth_user';
 
 function isBrowser() {
   return typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined';
@@ -18,8 +19,8 @@ export async function saveAuth(data) {
   };
 
   if (Platform.OS === 'web' && isBrowser()) {
-    sessionStorage.setItem(TOKEN_KEY, token);
-    sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
   } else {
     await AsyncStorage.setItem(TOKEN_KEY, token);
     await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -28,15 +29,28 @@ export async function saveAuth(data) {
 
 export async function getAuth() {
   if (Platform.OS === 'web' && isBrowser()) {
-    const token = sessionStorage.getItem(TOKEN_KEY);
-    const user = sessionStorage.getItem(USER_KEY);
-    return token ? { token, user: JSON.parse(user) } : null;
-  }
+    // const token = localStorage.getItem(TOKEN_KEY);
+    // const user = localStorage.getItem(USER_KEY);
+    // return token ? { token, user: JSON.parse(user) } : null;
+    const user = await api.get('/auth/userInfo')
+    return {
+      user: user.data.data,
+      success: user.data.success,
+      token: localStorage.getItem(TOKEN_KEY)
+    }
+ }
 
   if (Platform.OS !== 'web') {
-    const token = await AsyncStorage.getItem(TOKEN_KEY);
-    const user = await AsyncStorage.getItem(USER_KEY);
-    return token ? { token, user: JSON.parse(user) } : null;
+    // const token = await AsyncStorage.getItem(TOKEN_KEY);
+    // const user = await AsyncStorage.getItem(USER_KEY);
+    // return token ? { token, user: JSON.parse(user) } : null;
+
+    const user = await api.get('/auth/userInfo')
+    return {
+      user: user.data.data,
+      success: user.data.success,
+      token: localStorage.getItem(TOKEN_KEY)
+    }
   }
 
   return null;
@@ -44,8 +58,8 @@ export async function getAuth() {
 
 export async function clearAuth() {
   if (Platform.OS === 'web' && isBrowser()) {
-    sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(USER_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
   } else {
     await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY]);
   }

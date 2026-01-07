@@ -3,6 +3,6 @@ import api from '../api';
 
 export async function auth(email: string, senha: string) {
     const response = await api.post("/auth/login", { email, senha });
-    await saveAuth(response.data);
-    return response.data;
+    await saveAuth(response.data.data);
+    return response.data.data;
 }

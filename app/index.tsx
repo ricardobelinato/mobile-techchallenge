@@ -22,7 +22,7 @@ import { auth } from '../src/api/auth/auth';
 const { height } = Dimensions.get('window');
 
 export default function LoginScreen() {
-  const { login } = useAuth(); // Função que agora atualiza o estado global
+  const { login, me } = useAuth(); // Função que agora atualiza o estado global
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -45,6 +45,7 @@ export default function LoginScreen() {
       await login(response);
 
       // 3. Redireciona
+      await me()
       router.replace('/home');
 
     } catch (error) {
