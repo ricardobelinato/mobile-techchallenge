@@ -49,7 +49,7 @@ type Post = {
 
 export default function HomeScreen() {
   const [auth, setAuth] = useState<AuthData | null>(null);
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [busca, setBusca] = useState("");
 
@@ -94,7 +94,7 @@ export default function HomeScreen() {
     );
   };
 
-  const removerPost = async (postId) => {
+  const removerPost = async (postId: number) => {
     try {
       await deletePost(postId);
       
@@ -116,7 +116,7 @@ export default function HomeScreen() {
     }
   };
 
-  const renderizaPost = ({ item }) => (
+  const renderizaPost = ({ item }: { item: Post }) => (
     <View style={styles.card}>
       <Image
         source={{ uri: getPostImage(item) }}
@@ -142,7 +142,7 @@ export default function HomeScreen() {
             style={({ pressed }) => [styles.botao, pressed && { opacity: 0.7 }]}
             onPress={() => router.push({
               pathname: "/post/read",
-              params: { id: item.id }
+              params: { id: item.id.toString() }
             })}
           >
             <Text style={styles.textoBotao}>Ler post</Text>
@@ -154,7 +154,7 @@ export default function HomeScreen() {
               style={({ pressed }) => [styles.botaoEditar, pressed && { opacity: 0.7 }]}
               onPress={() => router.push({
                 pathname: "/post/update",
-                params: { id: item.id }
+                params: { id: item.id.toString() }
               })}
             >
               <Text style={styles.textoBotaoEditar}>Editar</Text>
@@ -175,11 +175,11 @@ export default function HomeScreen() {
     </View>
   );
 
-  async function fetchPosts() {
+  async function fetchPosts(searchTerm?: string) {
     try {
       setLoading(true);
-      const data = await getPosts();
-
+      const response = await getPosts(searchTerm);
+      const data = response?.data || []
       if (Array.isArray(data)) {
         setPosts(data);
       } else if (data) {
@@ -238,7 +238,7 @@ export default function HomeScreen() {
   );
 }
 
-function getPostImage(post) {
+function getPostImage(post: Post) {
   if (post.imagem) return post.imagem;
   return `https://picsum.photos/seed/post-${post.id ?? Math.random()}/600/400`;
 }
