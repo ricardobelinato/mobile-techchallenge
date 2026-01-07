@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Platform } from "react-native";
+import { TOKEN_KEY } from "../storage/authStorage"
 
 const LOCAL_IP = '10.0.0.53'
 
@@ -9,10 +10,7 @@ const api = axios.create({
     : `http://${LOCAL_IP}:3000`,
 });
 
-// Add a request interceptor
 api.interceptors.request.use(function (config) {
-    // Do something before request is sent
-    console.log(config);
     const token = localStorage.getItem("token"); 
 
     if (token) {
@@ -21,7 +19,6 @@ api.interceptors.request.use(function (config) {
 
     return config;
   }, function (error) {
-    // Do something with request error
     return Promise.reject(error);
   });
   
