@@ -97,7 +97,6 @@ export default function AlunoCreate() {
                 <TextInput
                     value={nome}
                     onChangeText={setNome}
-                    placeholder="Digite o nome completo do aluno"
                     style={styles.input}
                     editable={!criando}
                 />
@@ -106,7 +105,6 @@ export default function AlunoCreate() {
                 <TextInput
                     value={email}
                     onChangeText={setEmail}
-                    placeholder="Digite o e-mail do aluno"
                     style={styles.input}
                     editable={!criando}
                     keyboardType="email-address"

@@ -33,24 +33,27 @@ function LayoutContent() {
       router.replace('/');
     }
 
-    // if (isLogged && isLoginRoute) {
-    //   router.replace('/home');
-    // }
   }, [auth, loading, pathname]);
 
   if (loading) return null;
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <CustomDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      { auth && (
+        <CustomDrawer
+          visible={drawerOpen && !!auth}
+          onClose={() => setDrawerOpen(false)}
+        />
+      )}
 
       <Stack
         screenOptions={{
           title: 'SchoolOn',
           headerStyle: {
             backgroundColor: '#FFFFFF',
+            borderBottomWidth: 1,
+            borderBottomColor: '#E5E5E5',
           },
-          headerShadowVisible: true,
           headerTitle: () => (
             <Pressable onPress={() => router.push('/home')}>
               <Image

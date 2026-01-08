@@ -158,7 +158,6 @@ export default function AlunoUpdate() {
                 <TextInput
                     value={nome}
                     onChangeText={setNome}
-                    placeholder="Digite o nome completo..."
                     style={styles.input}
                     editable={!salvando}
                 />
@@ -167,7 +166,6 @@ export default function AlunoUpdate() {
                 <TextInput
                     value={email}
                     onChangeText={setEmail}
-                    placeholder="Digite o e-mail..."
                     style={styles.input}
                     editable={!salvando}
                     keyboardType="email-address"

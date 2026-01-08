@@ -14,6 +14,13 @@ export default function CustomDrawer({ visible, onClose }: Props) {
   const slideAnim = useRef(new Animated.Value(-280)).current;
   const router = useRouter();
 
+  console.log('CustomDrawer renderizado:', { 
+    visible, 
+    hasAuth: !!auth, 
+    userName: auth?.user?.nome,
+    isAdmin: auth?.user?.admin 
+  });
+  
   useEffect(() => {
     Animated.spring(slideAnim, {
       toValue: visible ? 0 : -280,
@@ -30,8 +37,9 @@ export default function CustomDrawer({ visible, onClose }: Props) {
 
   const handleLogout = async () => {
     logout();
+    onClose();
   };
-  console.log(auth?.user)
+  
   return (
     <>
       {visible && (

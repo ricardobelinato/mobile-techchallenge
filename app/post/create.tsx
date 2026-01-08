@@ -1,15 +1,15 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { createPost } from "../../src/api/posts/createPost";
 
@@ -108,21 +108,11 @@ export default function PostCreate() {
             <View style={{ height: 20 }} />
 
             <View style={styles.card}>
-                {/* DEBUG INFO */}
-                {/* {__DEV__ && userId && (
-                    <View style={[styles.infoBox, { backgroundColor: "#E8F8E8", borderLeftColor: "#28a745" }]}>
-                        <Text style={[styles.infoText, { color: "#28a745" }]}>
-                            ✓ Logado como usuário ID: {userId}
-                        </Text>
-                    </View>
-                )} */}
-
                 {/* CAMPOS EDITÁVEIS */}
                 <Text style={styles.label}>Título *</Text>
                 <TextInput
                     value={titulo}
                     onChangeText={setTitulo}
-                    placeholder="Digite o título..."
                     style={styles.input}
                     editable={!criando}
                 />
@@ -131,7 +121,6 @@ export default function PostCreate() {
                 <TextInput
                     value={conteudo}
                     onChangeText={setConteudo}
-                    placeholder="Digite o conteúdo..."
                     multiline
                     numberOfLines={8}
                     style={[styles.input, styles.textArea]}
@@ -142,7 +131,6 @@ export default function PostCreate() {
                 <TextInput
                     value={materia}
                     onChangeText={setMateria}
-                    placeholder="Ex: Matemática, Português..."
                     style={styles.input}
                     editable={!criando}
                 />
@@ -151,7 +139,6 @@ export default function PostCreate() {
                 <TextInput
                     value={imagem}
                     onChangeText={setImagem}
-                    placeholder="https://exemplo.com/imagem.jpg"
                     style={styles.input}
                     editable={!criando}
                     autoCapitalize="none"

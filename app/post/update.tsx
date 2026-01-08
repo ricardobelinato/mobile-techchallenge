@@ -1,14 +1,14 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { getPostById } from "../../src/api/posts/getPostById";
 import { updatePost } from "../../src/api/posts/updatePost";
@@ -41,7 +41,6 @@ export default function PostUpdate() {
             setMateria(post.materia || "Não informada");
             setAutor(post.Usuario?.nome || "Desconhecido");
             
-            // Formata a data
             if (post.data_criacao) {
                 const data = new Date(post.data_criacao);
                 setDataCriacao(data.toLocaleDateString('pt-BR'));
@@ -111,7 +110,6 @@ export default function PostUpdate() {
                 <TextInput
                     value={titulo}
                     onChangeText={setTitulo}
-                    placeholder="Digite o título..."
                     style={styles.input}
                     editable={!salvando}
                 />
@@ -120,7 +118,6 @@ export default function PostUpdate() {
                 <TextInput
                     value={conteudo}
                     onChangeText={setConteudo}
-                    placeholder="Digite o conteúdo..."
                     multiline
                     numberOfLines={8}
                     style={[styles.input, styles.textArea]}

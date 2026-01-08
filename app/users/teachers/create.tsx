@@ -97,7 +97,6 @@ export default function ProfessorCreate() {
                 <TextInput
                     value={nome}
                     onChangeText={setNome}
-                    placeholder="Digite o nome completo do professor"
                     style={styles.input}
                     editable={!criando}
                 />
@@ -106,7 +105,6 @@ export default function ProfessorCreate() {
                 <TextInput
                     value={email}
                     onChangeText={setEmail}
-                    placeholder="Digite o e-mail do professor"
                     style={styles.input}
                     editable={!criando}
                     keyboardType="email-address"

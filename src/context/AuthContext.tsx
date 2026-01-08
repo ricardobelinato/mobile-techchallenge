@@ -1,8 +1,63 @@
+// import { clearAuth, getAuth, saveAuth } from "@/src/storage/authStorage";
+// import { router } from "expo-router";
+// import { createContext, useContext, useEffect, useState } from "react";
+
+// type User = {
+//   id: number;
+//   nome: string;
+//   email: string;
+//   admin: boolean;
+// };
+
+// type AuthData = {
+//   token: string;
+//   user: User;
+// };
+
+// type AuthContextType = {
+//   auth: AuthData | null;
+//   loading: boolean;
+//   login: (data: AuthData) => Promise<void>;
+//   logout: () => void;
+// };
+
+// const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+
+// export function AuthProvider({ children }) {
+//     const [auth, setAuth] = useState<AuthData | null>(null);
+//     const [loading, setLoading] = useState(true);
+
+//     useEffect(() => {
+//         (async () => {
+//         const data = await getAuth();
+//         setAuth(data);
+//         setLoading(false);
+//         })();
+//     }, []);
+
+//     const logout: () => Promise<void> = async () => {
+//       clearAuth();
+//       setAuth(null);
+//       router.replace('/');
+//     };
+
+//     const login = async (data: AuthData) => {
+//       await saveAuth(data);
+//       setAuth(data);
+//     };
+
+//   return (
+//     <AuthContext.Provider value={{ auth, loading, login, logout }}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// }
+
+// export const useAuth = () => useContext(AuthContext);
+
 import { clearAuth, getAuth, saveAuth } from "@/src/storage/authStorage";
-import { useRouter } from "expo-router";
-import { createContext, useContext, useEffect, useState } from "react";
-import { Platform } from "react-native";
-import SecureStore from 'expo-secure-store'
+import { router } from "expo-router";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 type User = {
   id: number;
@@ -19,65 +74,60 @@ type AuthData = {
 type AuthContextType = {
   auth: AuthData | null;
   loading: boolean;
-  login: (apiResponse: any) => Promise<void>;
-  logout: () => void;
+  login: (data: AuthData) => Promise<void>;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }) {
   const [auth, setAuth] = useState<AuthData | null>(null);
+
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     (async () => {
-      try {
-        const data = await getAuth();
-        setAuth(data);
-      } catch (error) {
-        console.error("Erro ao carregar dados de autenticação:", error);
-      } finally {
-        setLoading(false);
-      }
+      const data = await getAuth();
+      setAuth(data);
+      setLoading(false);
     })();
   }, []);
 
-  const login = async (apiResponse: any) => {
-    const formattedData: AuthData = {
-      token: apiResponse.token,
-      user: {
-        id: apiResponse.id,
-        nome: apiResponse.nome,
-        email: apiResponse.email,
-        admin: apiResponse.admin,
-      },
-    };
-
-    await saveAuth(formattedData);
-
-    setAuth(formattedData);
-  };
-
-  /**
-   * Função de Logout
-   */
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await clearAuth();
     setAuth(null);
-    router.replace("/");
-  };
+    router.replace('/');
+  }, []);
+
+  const login = useCallback(async (data: any) => {
+    await saveAuth(data);
+
+    if (data.user) {
+    setAuth(data);
+  } else {
+    const formattedAuth = {
+      token: data.token,
+      user: {
+        id: data.id,
+        nome: data.nome,
+        email: data.email,
+        admin: data.admin
+      }
+    };
+    setAuth(formattedAuth);
+  }
+  }, []);
+
+  const value = useMemo(
+    () => ({ auth, loading, login, logout }),
+    [auth, loading, login, logout]
+  );
 
   return (
-    <AuthContext.Provider value={{ auth, loading, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
-  }
-  return context;
-};
+
+export const useAuth = () => useContext(AuthContext);
