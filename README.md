@@ -134,7 +134,7 @@ mobile-techchallenge/
 ## 🎥 Gravação
 
 O vídeo demonstrativo com o funcionamento completo da aplicação pode ser acessado no link abaixo:
-link
+[link](https://www.loom.com/share/c3231936d3ec4e1ab2c7fd7d443bb481)
 
 ---
 
