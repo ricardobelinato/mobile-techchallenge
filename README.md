@@ -111,8 +111,8 @@ mobile-techchallenge/
 
 ### 2. Área do Professor (Autenticada)
 
-- **Gestão de Posts:** Criar, editar e excluir postagens.
-- **Gestão de Professores:** Listagem paginada, cadastro e edição de outros docentes.
+- **Gestão de posts:** Criar, editar e excluir postagens.
+- **Gestão de usuários:** Listagem paginada, cadastro, edição e exclusão tanto de alunos quanto de professores em views separadas.
 
 ### 3. Segurança e Regras
 
@@ -140,4 +140,4 @@ link
 
 ## 📄 Licença
 
-Este projeto foi desenvolvido para fins educacionais (FIAP Tech Challenge).
+Este projeto foi desenvolvido para fins educacionais (FIAP, Mobile Tech Challenge).
