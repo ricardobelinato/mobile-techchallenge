@@ -90,6 +90,7 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           style={styles.formContainer}
+          contentContainerStyle={{ flexGrow: 1 }}
         >
           <View>
             <Text style={styles.welcomeTitle}>Bem-vindo de volta!</Text>
@@ -187,8 +188,14 @@ const styles = StyleSheet.create({
   keyboardAvoidingView: {
     flex: 1,
   },
+  // header: {
+  //   height: height * 0.35,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   paddingTop: 20,
+  // },
   header: {
-    height: height * 0.35,
+    height: 280, // ao invés de height * 0.35
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 20,

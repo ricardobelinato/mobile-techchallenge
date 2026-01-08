@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { deletePost } from '../src/api/posts/deletePost';
 import { getPosts } from '../src/api/posts/getPosts';
+import { searchPosts } from '../src/api/posts/searchPosts';
 import { getAuth } from '../src/storage/authStorage';
 
 type User = {
@@ -175,10 +176,14 @@ export default function HomeScreen() {
     </View>
   );
 
-  async function fetchPosts() {
+  async function fetchPosts(termoBusca = "") {
     try {
       setLoading(true);
-      const data = await getPosts();
+      // const data = await getPosts();
+
+      const data = termoBusca 
+        ? await searchPosts(termoBusca)
+        : await getPosts();
 
       if (Array.isArray(data)) {
         setPosts(data);
