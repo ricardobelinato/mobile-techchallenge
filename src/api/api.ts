@@ -9,4 +9,17 @@ const api = axios.create({
     : `http://${LOCAL_IP}:3000`,
 });
 
-export default api;
+api.interceptors.request.use(function (config) {
+    console.log(config);
+    const token = localStorage.getItem("token"); 
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  }, function (error) {
+    return Promise.reject(error);
+  });
+  
+  export default api;
